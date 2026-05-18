@@ -1,0 +1,22 @@
+### `NOTICE`
+
+OpenChat
+This software makes use of the following open-source crates. Full license texts for MIT and Apache-2.0 are widely available; canonical copies are included in each crate's source distribution on crates.io.
+
+eframe & egui Author: Emil Ernerfeldt and contributors Source: https://github.com/emilk/egui License: MIT OR Apache-2.0
+
+keyring Author: Walther Chen, Dan Brotsky, and contributors Source: https://github.com/open-source-cooperative/keyring-rs License: MIT OR Apache-2.0
+
+reqwest Author: Sean McArthur and contributors Source: https://github.com/seanmonstar/reqwest License: MIT OR Apache-2.0
+
+tokio Author: Tokio Contributors Source: https://github.com/tokio-rs/tokio License: MIT
+
+serde & serde_json Author: David Tolnay and contributors Source: https://github.com/serde-rs/serde https://github.com/serde-rs/json License: MIT OR Apache-2.0
+
+anyhow Author: David Tolnay Source: https://github.com/dtolnay/anyhow License: MIT OR Apache-2.0
+
+thiserror Author: David Tolnay Source: https://github.com/dtolnay/thiserror License: MIT OR Apache-2.0
+
+Where a crate is dual-licensed MIT OR Apache-2.0, you may choose either license. The full text of each license can be found at:
+
+MIT: https://opensource.org/licenses/MIT Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
