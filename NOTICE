@@ -1,6 +1,6 @@
 ### `NOTICE`
 
-OpenChat
+Lumen Chat
 This software makes use of the following open-source crates. Full license texts for MIT and Apache-2.0 are widely available; canonical copies are included in each crate's source distribution on crates.io.
 
 eframe & egui Author: Emil Ernerfeldt and contributors Source: https://github.com/emilk/egui License: MIT OR Apache-2.0
@@ -16,6 +16,10 @@ serde & serde_json Author: David Tolnay and contributors Source: https://github.
 anyhow Author: David Tolnay Source: https://github.com/dtolnay/anyhow License: MIT OR Apache-2.0
 
 thiserror Author: David Tolnay Source: https://github.com/dtolnay/thiserror License: MIT OR Apache-2.0
+
+chrono Author: Chronotope and contributors Source: https://github.com/chronotope/chrono License: MIT OR Apache-2.0
+
+uuid Author: uuid-rs and contributors Source: https://github.com/uuid-rs/uuid License: MIT OR Apache-2.0
 
 Where a crate is dual-licensed MIT OR Apache-2.0, you may choose either license. The full text of each license can be found at:
 

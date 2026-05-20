@@ -4,6 +4,7 @@ mod app;
 mod openrouter;
 mod secure_store;
 mod ui;
+mod storage;
 
 use app::App;
 use eframe::egui;
@@ -23,12 +24,12 @@ fn main() -> eframe::Result<()> {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1100.0, 720.0])
             .with_min_inner_size([720.0, 480.0])
-            .with_title("OpenChat"),
+            .with_title("Lumen Chat"),
         ..Default::default()
     };
 
     eframe::run_native(
-        "Krater Chat",
+        "Lumen Chat",
         native_options,
         Box::new(|_cc| {
             let app = App::new().expect("failed to initialize app");

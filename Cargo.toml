@@ -1,18 +1,21 @@
 [package]
-name = "Openchat"
-version = "0.1.0"
+name = "Lumen Chat"
+version = "0.5.1"
 edition = "2024"
 
 [dependencies]
 eframe = "0.29"
 egui = "0.29"
-keyring = "3"
+keyring = { version = "3", features = ["windows-native"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 anyhow = "1"
 thiserror = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winuser"] }
