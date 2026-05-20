@@ -1,5 +1,5 @@
 use reqwest::{Client, RequestBuilder, StatusCode};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 const BASE_URL: &str = "https://openrouter.ai/api/v1";
 
@@ -8,11 +8,14 @@ pub enum OpenRouterError {
     #[error("API key was rejected by OpenRouter")]
     Unauthorized,
 
-    #[error("network error: {0}")]
+    #[error("Network error: {0}")]
     Network(#[from] reqwest::Error),
 
-    #[error("unexpected response from OpenRouter (HTTP {status}): {body}")]
+    #[error("Unexpected response from OpenRouter (HTTP {status}): {body}")]
     Unexpected { status: u16, body: String },
+
+    #[error("OpenRouter returned no choices")]
+    EmptyResponse,
 }
 
 #[derive(Debug, Deserialize)]
@@ -29,9 +32,39 @@ struct KeyInfoEnvelope {
     data: KeyInfo,
 }
 
+#[derive(Clone)]
 pub struct OpenRouterClient {
     http: Client,
     api_key: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ChatMessage {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Debug, Serialize)]
+struct ChatRequest<'a> {
+    model: &'a str,
+    messages: &'a [ChatMessage],
+}
+
+#[derive(Debug, Deserialize)]
+struct ChatResponse {
+    choices: Vec<ChatChoice>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ChatChoice {
+    message: ChatResponseMessage,
+}
+
+#[derive(Debug, Deserialize)]
+struct ChatResponseMessage {
+    #[allow(dead_code)]
+    role: String,
+    content: String,
 }
 
 impl OpenRouterClient {
@@ -64,5 +97,39 @@ impl OpenRouterClient {
 
         let envelope: KeyInfoEnvelope = resp.json().await?;
         Ok(envelope.data)
+    }
+
+    pub async fn chat_completion(
+        &self,
+        model: &str,
+        messages: &[ChatMessage],
+    ) -> Result<String, OpenRouterError> {
+        let body = ChatRequest { model, messages };
+        let req = self
+            .http
+            .post(format!("{}/chat/completions", BASE_URL))
+            .json(&body);
+        let resp = self.auth_headers(req).send().await?;
+        let status = resp.status();
+
+        if status == StatusCode::UNAUTHORIZED {
+            return Err(OpenRouterError::Unauthorized);
+        }
+        if !status.is_success() {
+            let body = resp.text().await.unwrap_or_default();
+            return Err(OpenRouterError::Unexpected 
+                { 
+                    status: status.as_u16(), 
+                    body, 
+                });
+        }
+
+        let parsed: ChatResponse = resp.json().await?;
+        parsed
+            .choices
+            .into_iter()
+            .next()
+            .map(|c| c.message.content)
+            .ok_or(OpenRouterError::EmptyResponse)
     }
 }

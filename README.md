@@ -1,4 +1,4 @@
-# OpenChat
+# Lumen Chat
 
 A lightweight, Windows-native desktop chat client that connects to
 [OpenRouter](https://openrouter.ai), giving you access to a wide range of
@@ -18,6 +18,7 @@ language models through a single, clean interface.
 
 - Windows 10 or later
 - A valid [OpenRouter API key](https://openrouter.ai/keys)
+- [Visual C++ for Visual Studio 2015-2022 x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
 - [Rust toolchain](https://rustup.rs) (only for building from source)
 
 ## Building
