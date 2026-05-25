@@ -1,18 +1,23 @@
-use crate::app::{App, Message, OnboardingStatus, Role, Screen, AVAILABLE_MODELS, DEFAULT_MODEL};
+use crate::app::{find_model,App, Message, OnboardingStatus, Role, Screen, MODEL_GROUPS, DEFAULT_MODEL};
 use eframe::egui;
+use egui_commonmark::{CommonMarkCache, CommonMarkViewer};
+use std::cell::RefCell;
 use std::time::Duration;
 use uuid::Uuid;
 
 const FADE_DURATION: Duration = Duration::from_millis(300);
 
+thread_local! {
+    static MD_CACHE: RefCell<CommonMarkCache> = RefCell::new(CommonMarkCache::default());
+}
+
 pub fn render(app: &mut App, ctx: &egui::Context) {
     app.poll_validation();
-    // Re-paint while validating so the spinner animates.
     if matches!(
         &app.screen,
         Screen::Onboarding(s) if matches!(s.status, OnboardingStatus::Validating)
     ) {
-        ctx.request_repaint_after(std::time::Duration::from_millis(100));
+        ctx.request_repaint_after(Duration::from_millis(100));
     }
 
     match &mut app.screen {
@@ -26,7 +31,7 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
         ui.vertical_centered(|ui| {
             ui.add_space(80.0);
 
-            ui.heading("Welcome to Krater Chat");
+            ui.heading("Welcome to Lumen Chat");
             ui.add_space(6.0);
             ui.label(
                 egui::RichText::new("Connect your OpenRouter API key to get started.")
@@ -34,7 +39,6 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
             );
             ui.add_space(28.0);
 
-            // Card
             egui::Frame::group(ui.style())
                 .inner_margin(egui::Margin::same(20.0))
                 .show(ui, |ui| {
@@ -114,11 +118,10 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
 }
 
 fn render_main(app: &mut App, ctx: &egui::Context) {
-    // Poll for a completed assistant response before drawing this frame.
     app.poll_pending();
 
-    // Snapshot a few fields we'll need outside the &mut state borrow.
-    let (temporary_mode, has_pending, active_model, has_fading_message) = {
+    // Snapshot read-only bits we'll need outside the &mut state borrow.
+    let (temporary_mode, has_pending, active_model, has_fading_message, show_about) = {
         let Screen::Main(state) = &app.screen else { return };
         let active_model = state
             .active_chat()
@@ -138,6 +141,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             state.pending.is_some(),
             active_model,
             has_fading,
+            state.show_about,
         )
     };
 
@@ -149,19 +153,53 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         .exact_height(44.0)
         .show(ctx, |ui| {
             ui.horizontal_centered(|ui| {
-                let active_label = AVAILABLE_MODELS
-                    .iter()
-                    .find(|(id, _)| *id == active_model)
-                    .map(|(_, label)| *label)
+                let active_label = find_model(&active_model)
+                    .map(|m| m.name)
                     .unwrap_or("Model");
 
                 egui::ComboBox::from_id_salt("model_picker")
                     .selected_text(active_label)
                     .show_ui(ui, |ui| {
-                        for (id, label) in AVAILABLE_MODELS {
-                            let selected = active_model == *id;
-                            if ui.selectable_label(selected, *label).clicked() {
-                                new_model_choice = Some((*id).to_string());
+                        for (i, group) in MODEL_GROUPS.iter().enumerate() {
+                            if i > 0 {
+                                ui.add_space(6.0);
+                            }
+
+                            // Provider header.
+                            ui.label(
+                                egui::RichText::new(group.provider.to_uppercase())
+                                    .small()
+                                    .strong()
+                                    .color(egui::Color32::from_gray(150)),
+                            );
+                            ui.separator();
+
+                            for entry in group.models {
+                                let selected = active_model == entry.id;
+
+                                // Compose a single RichText line: bold name + dimmed descriptor.
+                                let mut job = egui::text::LayoutJob::default();
+                                job.append(
+                                    entry.name,
+                                    0.0,
+                                    egui::TextFormat {
+                                        color: ui.visuals().text_color(),
+                                        ..Default::default()
+                                    },
+                                );
+                                job.append(
+                                    &format!("   {}", entry.descriptor),
+                                    0.0,
+                                    egui::TextFormat {
+                                        color: egui::Color32::from_gray(140),
+                                        italics: true,
+                                        ..Default::default()
+                                    },
+                                );
+
+                                if ui.selectable_label(selected, job).clicked() {
+                                    new_model_choice = Some(entry.id.to_string());
+                                }
                             }
                         }
                     });
@@ -190,6 +228,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
     let mut select_request: Option<Uuid> = None;
     let mut delete_request: Option<Uuid> = None;
     let mut new_chat_request = false;
+    let mut about_request = false;
 
     egui::SidePanel::left("sidebar")
         .resizable(true)
@@ -198,53 +237,73 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         .show(ctx, |ui| {
             let Screen::Main(state) = &app.screen else { return };
 
-            ui.add_space(8.0);
-            if ui
-                .add_sized(
-                    [ui.available_width(), 32.0],
-                    egui::Button::new("➕  New chat"),
-                )
-                .clicked()
-            {
-                new_chat_request = true;
-            }
-            ui.add_space(8.0);
-            ui.separator();
+            // Reserve bottom space for the About button.
+            let about_row_height = 32.0;
+            let total_h = ui.available_height();
+            let list_h = (total_h - about_row_height - 16.0).max(40.0);
 
-            if state.temporary_mode {
+            ui.allocate_ui(egui::vec2(ui.available_width(), list_h), |ui| {
                 ui.add_space(8.0);
-                ui.label(
-                    egui::RichText::new("Temporary mode is on.\nThis chat will not be saved.")
-                        .italics()
-                        .color(egui::Color32::from_gray(160)),
-                );
-                return;
-            }
+                if ui
+                    .add_sized(
+                        [ui.available_width(), 32.0],
+                        egui::Button::new("➕  New chat"),
+                    )
+                    .clicked()
+                {
+                    new_chat_request = true;
+                }
+                ui.add_space(8.0);
+                ui.separator();
 
-            egui::ScrollArea::vertical().show(ui, |ui| {
-                let active_id = state.active_chat_id;
-                for chat in &state.chats {
-                    let selected = active_id == Some(chat.id);
-                    ui.horizontal(|ui| {
-                        if ui
-                            .selectable_label(selected, truncate(&chat.title, 28))
-                            .clicked()
-                        {
-                            select_request = Some(chat.id);
-                        }
-                        ui.with_layout(
-                            egui::Layout::right_to_left(egui::Align::Center),
-                            |ui| {
+                if state.temporary_mode {
+                    ui.add_space(8.0);
+                    ui.label(
+                        egui::RichText::new("Temporary mode is on.\nThis chat will not be saved.")
+                            .italics()
+                            .color(egui::Color32::from_gray(160)),
+                    );
+                    return;
+                }
+
+                egui::ScrollArea::vertical()
+                    .auto_shrink([false; 2])
+                    .show(ui, |ui| {
+                        let active_id = state.active_chat_id;
+                        for chat in &state.chats {
+                            let selected = active_id == Some(chat.id);
+                            ui.horizontal(|ui| {
                                 if ui
-                                    .small_button("🗑")
-                                    .on_hover_text("Delete chat")
+                                    .selectable_label(selected, truncate(&chat.title, 28))
                                     .clicked()
                                 {
-                                    delete_request = Some(chat.id);
+                                    select_request = Some(chat.id);
                                 }
-                            },
-                        );
+                                ui.with_layout(
+                                    egui::Layout::right_to_left(egui::Align::Center),
+                                    |ui| {
+                                        if ui
+                                            .small_button("🗑")
+                                            .on_hover_text("Delete chat")
+                                            .clicked()
+                                        {
+                                            delete_request = Some(chat.id);
+                                        }
+                                    },
+                                );
+                            });
+                        }
                     });
+            });
+
+            // Bottom: About button pinned to bottom-left.
+            ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
+                ui.add_space(8.0);
+                if ui
+                    .add_sized([ui.available_width(), 28.0], egui::Button::new("ℹ  About"))
+                    .clicked()
+                {
+                    about_request = true;
                 }
             });
         });
@@ -258,9 +317,24 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
     if let Some(id) = delete_request {
         app.delete_chat(id);
     }
+    if about_request {
+        if let Screen::Main(state) = &mut app.screen {
+            state.show_about = true;
+        }
+    }
 
     // === MAIN CHAT AREA ==================================================
     let mut send_request = false;
+
+    // Pull the "focus next frame" flag *and clear it* before borrowing for the panel.
+    let want_focus = if let Screen::Main(state) = &mut app.screen {
+        let f = state.focus_input_next_frame;
+        state.focus_input_next_frame = false;
+        f
+    } 
+    else {
+        false
+    };
 
     egui::CentralPanel::default().show(ctx, |ui| {
         let Screen::Main(state) = &mut app.screen else { return };
@@ -295,7 +369,6 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         );
         input_ui.add_space(8.0);
 
-        // "+" attachment button (stubbed until we wire real attachments)
         input_ui
             .add_enabled(false, egui::Button::new("➕").min_size(egui::vec2(32.0, 32.0)))
             .on_disabled_hover_text("Attachments coming soon");
@@ -313,9 +386,22 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             });
 
         let response = input_ui.add_enabled(!has_pending, text_edit);
+
+        // Focus management:
+        // - If we explicitly asked for focus this frame (new chat / response arrived /
+        //   chat switched), grab it.
+        // - Otherwise, if nothing else currently holds focus and we're enabled,
+        //   gently take it. This is what makes focus "sticky" without fighting
+        //   the user when they click elsewhere.
+        if !has_pending {
+            let nobody_focused = input_ui.ctx().memory(|m| m.focused()).is_none();
+            if want_focus || nobody_focused {
+                response.request_focus();
+            }
+        }
+
         let enter_pressed = response.has_focus()
-            && input_ui
-                .input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift);
+            && input_ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift);
 
         input_ui.add_space(4.0);
         let send_clicked = input_ui
@@ -332,9 +418,67 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
 
     if send_request {
         app.send_message();
+        // Refocus immediately so the user can keep typing follow-ups while waiting.
+        if let Screen::Main(state) = &mut app.screen {
+            state.focus_input_next_frame = true;
+        }
     }
 
-    // Keep repainting while a response is pending or while a message is fading in.
+    // === ABOUT WINDOW ====================================================
+    if show_about {
+        let mut open = true;
+        egui::Window::new("About Lumen Chat")
+            .open(&mut open)
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+            .default_width(360.0)
+            .show(ctx, |ui| {
+                ui.vertical_centered(|ui| {
+                    ui.add_space(4.0);
+                    ui.heading("Lumen Chat");
+                    ui.label(
+                        egui::RichText::new(format!("Version {}", env!("CARGO_PKG_VERSION")))
+                            .color(egui::Color32::GRAY),
+                    );
+                });
+                ui.add_space(10.0);
+                ui.separator();
+                ui.add_space(10.0);
+
+                ui.label("Lumen Chat");
+                ui.add_space(8.0);
+                ui.label("Developed by: Lumen Connection");
+                ui.add_space(4.0);
+                ui.horizontal(|ui| {
+                    ui.label("Contact:");
+                    ui.hyperlink_to("Website/Portfolio", "https://lumenconnection.com.br");
+                });
+                ui.add_space(4.0);
+                ui.horizontal(|ui| {
+                    ui.label("Source:");
+                    ui.hyperlink_to("GitHub", "https://github.com/Decade-GitHub/lumenchat");
+                });
+
+                ui.add_space(12.0);
+                ui.label(
+                    egui::RichText::new(
+                        "Your API key is stored in Windows Credential Manager.\nChat history is stored locally next to the executable.",
+                    )
+                    .small()
+                    .color(egui::Color32::from_gray(150)),
+                );
+                ui.add_space(6.0);
+            });
+
+        // Closing via the window's X button flips `open` to false.
+        if !open {
+            if let Screen::Main(state) = &mut app.screen {
+                state.show_about = false;
+            }
+        }
+    }
+
     if has_pending || has_fading_message {
         ctx.request_repaint_after(Duration::from_millis(16));
     }
@@ -372,7 +516,6 @@ fn render_messages(ui: &mut egui::Ui, messages: Option<&[Message]>) {
 fn render_message(ui: &mut egui::Ui, msg: &Message) {
     let is_user = matches!(msg.role, Role::User);
 
-    // Fade-in alpha: only assistant messages fade; user messages are instant.
     let alpha = if is_user {
         255u8
     } else {
@@ -402,7 +545,23 @@ fn render_message(ui: &mut egui::Ui, msg: &Message) {
             .inner_margin(egui::Margin::symmetric(12.0, 8.0))
             .show(ui, |ui| {
                 ui.set_max_width(max_width);
-                ui.label(egui::RichText::new(&msg.content).color(text_color));
+
+                if is_user {
+                    // User messages stay plain text — render their literal input.
+                    ui.label(egui::RichText::new(&msg.content).color(text_color));
+                } 
+                else {
+                    // Assistant: Markdown. Tint via visuals override so links/headings inherit alpha.
+                    let mut visuals = ui.visuals().clone();
+                    visuals.override_text_color = Some(text_color);
+                    let prev = std::mem::replace(ui.visuals_mut(), visuals);
+
+                    MD_CACHE.with(|cache| {
+                        CommonMarkViewer::new().show(ui, &mut cache.borrow_mut(), &msg.content);
+                    });
+
+                    *ui.visuals_mut() = prev;
+                }
             });
     });
 }
