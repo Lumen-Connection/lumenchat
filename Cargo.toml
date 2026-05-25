@@ -1,11 +1,12 @@
 [package]
-name = "Lumen Chat"
-version = "0.5.1"
+name = "Lumenchat"
+version = "0.6.0"
 edition = "2024"
 
 [dependencies]
 eframe = "0.29"
 egui = "0.29"
+egui_commonmark = "0.18"
 keyring = { version = "3", features = ["windows-native"] }
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 tokio = { version = "1", features = ["full"] }
@@ -15,7 +16,11 @@ anyhow = "1"
 thiserror = "1"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
 
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winuser"] }
+
+[build-dependencies]
+winresource = "0.1"

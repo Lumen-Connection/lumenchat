@@ -9,15 +9,108 @@ use std::time::Instant;
 use tokio::runtime::Runtime;
 use uuid::Uuid;
 
-pub const AVAILABLE_MODELS: &[(&str, &str)] = &[
-    ("openai/gpt-5.4-mini", "GPT-5.4 mini"),
-    ("anthropic/claude-sonnet-4.6", "Claude Sonnet 4.6"),
-    ("anthropic/claude-haiku-4.5", "Claude Haiku 4.5"),
-    ("google/gemini-3.1-flash-lite", "Gemini 3.1 Flash-Lite"),
-    ("deepseek/deepseek-v4-flash:free", "DeepSeek V4 Flash"),
+pub struct ModelEntry {
+    pub id: &'static str,
+    pub name: &'static str,
+    pub descriptor: &'static str,
+}
+
+pub struct ModelGroup {
+    pub provider: &'static str,
+    pub models: &'static [ModelEntry],
+}
+
+pub const MODEL_GROUPS: &[ModelGroup] = &[
+    ModelGroup {
+        provider: "OpenAI",
+        models: &[
+            ModelEntry {
+                id: "openai/gpt-5.5",
+                name: "GPT-5.5",
+                descriptor: "Heavy reasoning",
+            },
+            ModelEntry {
+                id: "openai/gpt-5.4",
+                name: "GPT-5.4 Thinking",
+                descriptor: "Better thinking",
+            },
+            ModelEntry {
+                id: "openai/gpt-5.3-chat",
+                name: "GPT-5.3 Instant",
+                descriptor: "Daily chat model",
+            }
+        ],
+    },
+    ModelGroup {
+        provider: "Google",
+        models: &[
+            ModelEntry {
+                id: "google/gemini-3.1-pro-preview",
+                name: "Gemini 3.1 Pro",
+                descriptor: "Deep thinking",
+            },
+            ModelEntry {
+                id: "google/gemini-3.5-flash",
+                name: "Gemini 3.5 Flash",
+                descriptor: "Balanced model",
+            },
+            ModelEntry {
+                id: "google/gemini-3.1-flash-lite",
+                name: "Gemini 3.1 Flash-Lite",
+                descriptor: "Cheap, quick thinker",
+            }
+        ],
+    },
+    ModelGroup {
+        provider: "Anthropic",
+        models: &[
+            ModelEntry {
+                id: "anthropic/claude-opus-4.7",
+                name: "Claude Opus 4.7",
+                descriptor: "State-of-the-art coding model"
+            },
+            ModelEntry {
+                id: "anthropic/claude-sonnet-4.6",
+                name: "Claude Sonnet 4.6",
+                descriptor: "Balanced coding model",
+            },
+            ModelEntry {
+                id: "anthropic/claude-haiku-4.5",
+                name: "Claude Haiku 4.5",
+                descriptor: "Fast coding model",
+            },
+        ],
+    },
+    ModelGroup {
+        provider: "xAI",
+        models: &[
+            ModelEntry {
+                id: "x-ai/grok-4.20-multi-agent",
+                name: "Grok 4.20 Multi-Agent",
+                descriptor: "Uncensored multiagentic reasoning",
+            },
+            ModelEntry {
+                id: "x-ai/grok-4.3",
+                name: "Grok 4.3",
+                descriptor: "Uncensored advanced reasoning",
+            },
+            ModelEntry {
+                id: "x-ai/grok-build-0.1",
+                name: "Grok Build 0.1",
+                descriptor: "Fast agentic coding model",
+            }
+        ]
+    }
 ];
 
-pub const DEFAULT_MODEL: &str = "deepseek/deepseek-v4-flash:free";
+pub const DEFAULT_MODEL: &str = "google/gemini-3.5-flash";
+
+pub fn find_model(id: &str) -> Option<&'static ModelEntry> {
+    MODEL_GROUPS
+        .iter()
+        .flat_map(|g| g.models.iter())
+        .find(|m| m.id == id)
+}
 
 pub enum Screen {
     Onboarding(OnboardingState),
@@ -94,6 +187,8 @@ pub struct MainState {
     pub temporary_mode: bool,
     pub input: String,
     pub pending: Option<PendingResponse>,
+    pub show_about: bool,
+    pub focus_input_next_frame: bool,
 }
 
 impl MainState {
@@ -156,6 +251,8 @@ impl App {
             temporary_mode: false,
             input: String::new(),
             pending: None,
+            show_about: false,
+            focus_input_next_frame: false,
         })
     }
 
@@ -252,6 +349,7 @@ impl App {
         state.active_chat_id = Some(chat.id);
         state.chats.insert(0, chat);
         let _ = storage::save_chats(&state.chats);
+        state.focus_input_next_frame = true;
     }
 
     pub fn select_chat(&mut self, id: Uuid) {
@@ -260,6 +358,7 @@ impl App {
             return;
         }
         state.active_chat_id = Some(id);
+        state.focus_input_next_frame = true;
     }
 
     pub fn delete_chat(&mut self, id: Uuid) {
@@ -287,6 +386,7 @@ impl App {
         } else {
             state.temp_chat = None;
         }
+        state.focus_input_next_frame = true;
     }
 
     /// Send the current input on the active chat.
@@ -355,6 +455,7 @@ impl App {
         let Ok(result) = pending.rx.try_recv() else { return };
         let chat_id = pending.chat_id;
         state.pending = None;
+        state.focus_input_next_frame = true;
 
         // Find the chat the response belongs to. It might be the temp chat,
         // a saved chat, or it may have been deleted while we waited.

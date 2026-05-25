@@ -19,12 +19,25 @@ impl eframe::App for OpenChatApp {
     }
 }
 
+fn load_icon() -> egui::IconData {
+    let bytes = include_bytes!("../assets/icon.png");
+    let image = image::load_from_memory(bytes)
+        .expect("failed to decode icon.png")
+        .into_rgba8();
+    let (width, height) = image.dimensions();
+    egui::IconData {
+        rgba: image.into_raw(),
+        width,
+        height,
+    }
+}
+
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([1100.0, 720.0])
             .with_min_inner_size([720.0, 480.0])
-            .with_title("Lumen Chat"),
+            .with_icon(load_icon()),
         ..Default::default()
     };
 
