@@ -37,12 +37,12 @@ impl SecureStore {
             .context("Failed to write to store")
     }
 
-    #[allow(dead_code)]
-    pub fn clear_key() -> Result<()> {
-        match Self::entry()?.delete_credential() {
+    pub fn delete_key() -> anyhow::Result<()> {
+        let entry = keyring::Entry::new(SERVICE, USER)?;
+        match entry.delete_credential() {
             Ok(()) => Ok(()),
             Err(keyring::Error::NoEntry) => Ok(()),
-            Err(e) => Err(e).context("Failed to delete key from store"),
+            Err(e) => Err(e.into()),
         }
     }
 }
