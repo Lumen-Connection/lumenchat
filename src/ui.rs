@@ -121,7 +121,16 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
 fn render_main(app: &mut App, ctx: &egui::Context) {
     app.poll_pending();
 
-    let (temporary_mode, has_pending, active_model, has_fading_message, show_about) = {
+    let (
+        temporary_mode, 
+        has_pending, 
+        active_model, 
+        has_fading_message, 
+        show_about,
+        confirm_eject,
+        active_chat_id,
+        pending_chat_id,
+    ) = {
         let Screen::Main(state) = &app.screen else { return };
         let active_model = state
             .active_chat()
@@ -142,8 +151,13 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             active_model,
             has_fading,
             state.show_about,
+            state.confirm_eject,
+            state.active_chat().map(|c| c.id),
+            state.pending.as_ref().map(|p| p.chat_id),
         )
     };
+
+    let show_thinking = has_pending && pending_chat_id == active_chat_id && active_chat_id.is_some();
 
     // === TOP BAR ===
     let mut new_model_choice: Option<String> = None;
@@ -229,6 +243,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
     let mut delete_request: Option<Uuid> = None;
     let mut new_chat_request = false;
     let mut about_request = false;
+    let mut eject_request = false;
 
     egui::SidePanel::left("sidebar")
         .resizable(true)
@@ -300,7 +315,20 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
                 ui.add_space(8.0);
                 if ui
-                    .add_sized([ui.available_width(), 28.0], egui::Button::new("ℹ  About"))
+                    .add_sized(
+                        [ui.available_width(), 28.0],
+                        egui::Button::new("⏏  Sign out / change key"),
+                    )
+                    .on_hover_text("Remove the cached API key and return to onboarding")
+                    .clicked()
+                {
+                    eject_request = true;
+                }
+                ui.add_space(4.0);
+                if ui
+                    .add_sized(
+                        [ui.available_width(), 28.0], 
+                        egui::Button::new("ℹ  About"))
                     .clicked()
                 {
                     about_request = true;
@@ -320,6 +348,11 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
     if about_request {
         if let Screen::Main(state) = &mut app.screen {
             state.show_about = true;
+        }
+    }
+    if eject_request {
+        if let Screen::Main(state) = &mut app.screen {
+            state.confirm_eject = true;
         }
     }
 
@@ -352,8 +385,9 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
                 .layout(egui::Layout::top_down(egui::Align::Min)),
         );
         render_messages(
-            &mut messages_ui,
+            &mut messages_ui, 
             state.active_chat().map(|c| c.messages.as_slice()),
+            show_thinking
         );
 
         // --- Input bar ---
@@ -474,12 +508,58 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         }
     }
 
+    if confirm_eject {
+        let mut open = true;
+        let mut do_eject= false;
+        let mut cancel = false;
+
+        egui::Window::new("Sign out?")
+            .open(&mut open)
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+            .default_width(360.0)
+            .show(ctx, |ui| {
+                ui.add_space(4.0);
+                ui.label("This will remove the cached API key from Windows Credential Manager and return you to the key entry screen.");
+                ui.add_space(6.0);
+                ui.label(
+                    egui::RichText::new("Your saved chats will not be deleted.")
+                        .small()
+                        .color(egui::Color32::from_gray(150)),
+                );
+                ui.add_space(12.0);
+                ui.horizontal(|ui|  {
+                    if ui
+                        .add(egui::Button::new("Sign out").min_size(egui::vec2(100.0, 28.0)))
+                        .clicked()
+                        {
+                            do_eject = true;
+                        }
+                    if ui
+                        .add(egui::Button::new("Cancel").min_size(egui::vec2(100.0, 28.0)))
+                        .clicked()
+                        {
+                            cancel = true;
+                        }
+                });
+            });
+        if do_eject {
+            app.eject_key();
+        }
+        else if cancel || !open {
+            if let Screen::Main(state) = &mut app.screen {
+                state.confirm_eject = false;
+            }
+        }
+    }
+    
     if has_pending || has_fading_message {
         ctx.request_repaint_after(Duration::from_millis(16));
     }
 }
 
-fn render_messages(ui: &mut egui::Ui, messages: Option<&[Message]>) {
+fn render_messages(ui: &mut egui::Ui, messages: Option<&[Message]>, show_thinking: bool) {
     egui::ScrollArea::vertical()
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
@@ -490,7 +570,8 @@ fn render_messages(ui: &mut egui::Ui, messages: Option<&[Message]>) {
                 None => true,
                 Some(m) => m.is_empty(),
             };
-            if empty {
+
+            if empty && !show_thinking {
                 ui.add_space(40.0);
                 ui.vertical_centered(|ui| {
                     ui.label(
@@ -500,12 +581,47 @@ fn render_messages(ui: &mut egui::Ui, messages: Option<&[Message]>) {
                 });
                 return;
             }
+            
+            if let Some(msgs) = messages {
+                for msg in msgs {
+                    render_message(ui, msg);
+                    ui.add_space(8.0);
+                }
+            }
 
-            for msg in messages.unwrap() {
-                render_message(ui, msg);
+            if show_thinking {
+                render_thinking(ui);
                 ui.add_space(8.0);
             }
-        });
+    });
+}
+
+fn render_thinking(ui: &mut egui::Ui) {
+    let phase = (ui.input(|i| i.time) * 4.0) as usize % 4;
+    let dots = ".".repeat(phase);
+    let text = format!("Thinking{}", dots);
+    
+    let bubble_color = egui::Color32::from_rgb(48, 48, 52);
+    let text_color = egui::Color32::from_gray(200);
+
+    ui.with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+        let max_width = ui.available_width() * 0.75;
+        egui::Frame::group(ui.style())
+            .fill(bubble_color)
+            .rounding(egui::Rounding::same(10.0))
+            .inner_margin(egui::Margin::symmetric(12.0, 8.0))
+            .show(ui, |ui| {
+                ui.set_max_width(max_width);
+                ui.label(
+                    egui::RichText::new(text)
+                        .italics()
+                        .color(text_color)
+                );
+            });
+    });
+
+    ui.ctx()
+        .request_repaint_after(Duration::from_millis(120));
 }
 
 fn render_message(ui: &mut egui::Ui, msg: &Message) {
@@ -545,7 +661,12 @@ fn render_message(ui: &mut egui::Ui, msg: &Message) {
                 ui.set_max_width(max_width);
 
                 if is_user {
-                    ui.label(egui::RichText::new(&msg.content).color(text_color));
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(&msg.content).color(text_color),
+                        )
+                        .wrap(),
+                    );
                 } 
                 else {
                     let mut visuals = ui.visuals().clone();

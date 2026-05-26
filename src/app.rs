@@ -187,6 +187,7 @@ pub struct MainState {
     pub pending: Option<PendingResponse>,
     pub show_about: bool,
     pub focus_input_next_frame: bool,
+    pub confirm_eject: bool,
 }
 
 impl MainState {
@@ -251,6 +252,7 @@ impl App {
             pending: None,
             show_about: false,
             focus_input_next_frame: false,
+            confirm_eject: false,
         })
     }
 
@@ -441,6 +443,18 @@ impl App {
                 .await
                 .map_err(|e| format!("{e}"));
             let _ = tx.send(result);
+        });
+    }
+
+    pub fn eject_key(&mut self) {
+        if let Err(e) = SecureStore::delete_key() {
+            eprintln!("[warn] couldn't delete cached key? {e:#}");
+        }
+        self.screen = Screen::Onboarding(OnboardingState {
+            key_input: String::new(),
+            show_key: false,
+            status: OnboardingStatus::Idle,
+            rx: None,
         });
     }
 
