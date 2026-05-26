@@ -29,7 +29,7 @@ pub fn load_chats() -> Result<Vec<Chat>> {
 pub fn save_chats(chats: &[Chat]) -> Result<()> {
     let path = chats_path();
     let json = serde_json::to_vec_pretty(chats)?;
-    // Evil ass atomic "write" (temp to rename)
+    // Evil atomic write (temp to rename)
     let tmp = path.with_extension("json.tmp");
     std::fs::write(&tmp, json)
         .with_context(|| format!("writing {}", tmp.display()))?;
