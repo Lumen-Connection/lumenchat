@@ -1,26 +1,21 @@
 ### `NOTICE`
-
 Lumen Chat
+
 This software makes use of the following open-source crates. Full license texts for MIT and Apache-2.0 are widely available; canonical copies are included in each crate's source distribution on crates.io.
 
 eframe & egui Author: Emil Ernerfeldt and contributors Source: https://github.com/emilk/egui License: MIT OR Apache-2.0
-
+egui_commonmark Author: lampsitter and contributors Source: https://github.com/lampsitter/egui_commonmark License: MIT OR Apache-2.0
 keyring Author: Walther Chen, Dan Brotsky, and contributors Source: https://github.com/open-source-cooperative/keyring-rs License: MIT OR Apache-2.0
-
 reqwest Author: Sean McArthur and contributors Source: https://github.com/seanmonstar/reqwest License: MIT OR Apache-2.0
-
 tokio Author: Tokio Contributors Source: https://github.com/tokio-rs/tokio License: MIT
-
 serde & serde_json Author: David Tolnay and contributors Source: https://github.com/serde-rs/serde https://github.com/serde-rs/json License: MIT OR Apache-2.0
-
 anyhow Author: David Tolnay Source: https://github.com/dtolnay/anyhow License: MIT OR Apache-2.0
-
 thiserror Author: David Tolnay Source: https://github.com/dtolnay/thiserror License: MIT OR Apache-2.0
-
 chrono Author: Chronotope and contributors Source: https://github.com/chronotope/chrono License: MIT OR Apache-2.0
-
 uuid Author: uuid-rs and contributors Source: https://github.com/uuid-rs/uuid License: MIT OR Apache-2.0
+image Author: The image-rs Developers Source: https://github.com/image-rs/image License: MIT OR Apache-2.0
+winapi Author: Peter Atashian and contributors Source: https://github.com/retep998/winapi-rs License: MIT OR Apache-2.0
+winresource Author: Benjamin R. and contributors Source: https://github.com/BenjaminRi/winresource License: MIT
 
 Where a crate is dual-licensed MIT OR Apache-2.0, you may choose either license. The full text of each license can be found at:
-
 MIT: https://opensource.org/licenses/MIT Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0

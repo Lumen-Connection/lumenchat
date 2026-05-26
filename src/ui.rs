@@ -1,4 +1,4 @@
-use crate::app::{find_model,App, Message, OnboardingStatus, Role, Screen, MODEL_GROUPS, DEFAULT_MODEL};
+use crate::app::{find_model, App, Message, OnboardingStatus, Role, Screen, MODEL_GROUPS, DEFAULT_MODEL};
 use eframe::egui;
 use egui_commonmark::{CommonMarkCache, CommonMarkViewer};
 use std::cell::RefCell;
@@ -74,7 +74,8 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
                             !validating,
                             egui::Button::new(if validating {
                                 "Validating…"
-                            } else {
+                            } 
+                            else {
                                 "Continue"
                             })
                             .min_size(egui::vec2(120.0, 32.0)),
@@ -120,7 +121,6 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
 fn render_main(app: &mut App, ctx: &egui::Context) {
     app.poll_pending();
 
-    // Snapshot read-only bits we'll need outside the &mut state borrow.
     let (temporary_mode, has_pending, active_model, has_fading_message, show_about) = {
         let Screen::Main(state) = &app.screen else { return };
         let active_model = state
@@ -145,7 +145,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         )
     };
 
-    // === TOP BAR =========================================================
+    // === TOP BAR ===
     let mut new_model_choice: Option<String> = None;
     let mut new_temp_mode: Option<bool> = None;
 
@@ -177,7 +177,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
                             for entry in group.models {
                                 let selected = active_model == entry.id;
 
-                                // Compose a single RichText line: bold name + dimmed descriptor.
+                                // Descriptor compose
                                 let mut job = egui::text::LayoutJob::default();
                                 job.append(
                                     entry.name,
@@ -224,7 +224,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         app.set_temporary_mode(on);
     }
 
-    // === SIDEBAR =========================================================
+    // === SIDEBAR ===
     let mut select_request: Option<Uuid> = None;
     let mut delete_request: Option<Uuid> = None;
     let mut new_chat_request = false;
@@ -237,7 +237,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         .show(ctx, |ui| {
             let Screen::Main(state) = &app.screen else { return };
 
-            // Reserve bottom space for the About button.
+            // About button.
             let about_row_height = 32.0;
             let total_h = ui.available_height();
             let list_h = (total_h - about_row_height - 16.0).max(40.0);
@@ -296,7 +296,7 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
                     });
             });
 
-            // Bottom: About button pinned to bottom-left.
+            // Bottom
             ui.with_layout(egui::Layout::bottom_up(egui::Align::Min), |ui| {
                 ui.add_space(8.0);
                 if ui
@@ -323,10 +323,9 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
         }
     }
 
-    // === MAIN CHAT AREA ==================================================
+    // === MAIN CHAT ===
     let mut send_request = false;
 
-    // Pull the "focus next frame" flag *and clear it* before borrowing for the panel.
     let want_focus = if let Screen::Main(state) = &mut app.screen {
         let f = state.focus_input_next_frame;
         state.focus_input_next_frame = false;
@@ -381,18 +380,15 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             .desired_width(input_ui.available_width() - 90.0)
             .hint_text(if has_pending {
                 "Waiting for response…"
-            } else {
+            } 
+            else {
                 "Type a message and press Enter to send"
             });
 
         let response = input_ui.add_enabled(!has_pending, text_edit);
 
-        // Focus management:
-        // - If we explicitly asked for focus this frame (new chat / response arrived /
-        //   chat switched), grab it.
-        // - Otherwise, if nothing else currently holds focus and we're enabled,
-        //   gently take it. This is what makes focus "sticky" without fighting
-        //   the user when they click elsewhere.
+        // Focus management, we're a bit stuck between forcefully grabbing it
+        // and properly taking it, just EGUI things
         if !has_pending {
             let nobody_focused = input_ui.ctx().memory(|m| m.focused()).is_none();
             if want_focus || nobody_focused {
@@ -418,13 +414,13 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
 
     if send_request {
         app.send_message();
-        // Refocus immediately so the user can keep typing follow-ups while waiting.
+        // Refocus immediately
         if let Screen::Main(state) = &mut app.screen {
             state.focus_input_next_frame = true;
         }
     }
 
-    // === ABOUT WINDOW ====================================================
+    // === ABOUT ===
     if show_about {
         let mut open = true;
         egui::Window::new("About Lumen Chat")
@@ -471,7 +467,6 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
                 ui.add_space(6.0);
             });
 
-        // Closing via the window's X button flips `open` to false.
         if !open {
             if let Screen::Main(state) = &mut app.screen {
                 state.show_about = false;
@@ -518,14 +513,16 @@ fn render_message(ui: &mut egui::Ui, msg: &Message) {
 
     let alpha = if is_user {
         255u8
-    } else {
+    } 
+    else {
         let t = msg.appeared_at.elapsed().as_secs_f32() / FADE_DURATION.as_secs_f32();
         (t.clamp(0.0, 1.0) * 255.0) as u8
     };
 
     let bubble_color = if is_user {
         egui::Color32::from_rgb(50, 90, 160)
-    } else {
+    } 
+    else {
         egui::Color32::from_rgb(48, 48, 52)
     };
     let bubble_color = with_alpha(bubble_color, alpha);
@@ -533,7 +530,8 @@ fn render_message(ui: &mut egui::Ui, msg: &Message) {
 
     let layout = if is_user {
         egui::Layout::right_to_left(egui::Align::Min)
-    } else {
+    } 
+    else {
         egui::Layout::left_to_right(egui::Align::Min)
     };
 
@@ -547,11 +545,9 @@ fn render_message(ui: &mut egui::Ui, msg: &Message) {
                 ui.set_max_width(max_width);
 
                 if is_user {
-                    // User messages stay plain text — render their literal input.
                     ui.label(egui::RichText::new(&msg.content).color(text_color));
                 } 
                 else {
-                    // Assistant: Markdown. Tint via visuals override so links/headings inherit alpha.
                     let mut visuals = ui.visuals().clone();
                     visuals.override_text_color = Some(text_color);
                     let prev = std::mem::replace(ui.visuals_mut(), visuals);
@@ -573,7 +569,8 @@ fn with_alpha(c: egui::Color32, a: u8) -> egui::Color32 {
 fn truncate(s: &str, max: usize) -> String {
     if s.chars().count() <= max {
         s.to_string()
-    } else {
+    } 
+    else {
         let mut out: String = s.chars().take(max).collect();
         out.push('…');
         out

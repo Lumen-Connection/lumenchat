@@ -147,8 +147,6 @@ pub enum Role {
 pub struct Message {
     pub role: Role,
     pub content: String,
-    /// When this message first appeared in the UI. Used for the fade-in animation.
-    /// Not serialized — restored messages should appear instantly.
     #[serde(skip, default = "Instant::now")]
     pub appeared_at: Instant,
 }
@@ -192,12 +190,11 @@ pub struct MainState {
 }
 
 impl MainState {
-    /// Return a mutable reference to whichever chat is currently active —
-    /// either the temporary one (if temp mode is on) or one from the saved list.
     pub fn active_chat_mut(&mut self) -> Option<&mut Chat> {
         if self.temporary_mode {
             self.temp_chat.as_mut()
-        } else {
+        } 
+        else {
             let id = self.active_chat_id?;
             self.chats.iter_mut().find(|c| c.id == id)
         }
@@ -206,7 +203,8 @@ impl MainState {
     pub fn active_chat(&self) -> Option<&Chat> {
         if self.temporary_mode {
             self.temp_chat.as_ref()
-        } else {
+        } 
+        else {
             let id = self.active_chat_id?;
             self.chats.iter().find(|c| c.id == id)
         }
@@ -328,7 +326,6 @@ impl App {
         }
     }
 
-    /// If there are no saved chats yet, make sure we start with a fresh one selected.
     fn with_initial_chat(mut main: MainState) -> MainState {
         if main.chats.is_empty() {
             let chat = Chat::new(DEFAULT_MODEL.into());
@@ -338,7 +335,6 @@ impl App {
         main
     }
 
-    /// Create a new chat and select it. Persists immediately.
     pub fn new_chat(&mut self) {
         let Screen::Main(state) = &mut self.screen else { return };
         if state.temporary_mode {
@@ -383,13 +379,13 @@ impl App {
         state.temporary_mode = on;
         if on {
             state.temp_chat = Some(Chat::new(DEFAULT_MODEL.into()));
-        } else {
+        } 
+        else {
             state.temp_chat = None;
         }
         state.focus_input_next_frame = true;
     }
 
-    /// Send the current input on the active chat.
     pub fn send_message(&mut self) {
         let Screen::Main(state) = &mut self.screen else { return };
         if state.pending.is_some() {
@@ -410,7 +406,6 @@ impl App {
             appeared_at: Instant::now(),
         });
 
-        // Auto-title from first user message.
         if chat.title == "New chat" {
             chat.title = text.chars().take(40).collect::<String>();
             if text.chars().count() > 40 {
@@ -457,11 +452,10 @@ impl App {
         state.pending = None;
         state.focus_input_next_frame = true;
 
-        // Find the chat the response belongs to. It might be the temp chat,
-        // a saved chat, or it may have been deleted while we waited.
         let target = if state.temporary_mode {
             state.temp_chat.as_mut().filter(|c| c.id == chat_id)
-        } else {
+        } 
+        else {
             state.chats.iter_mut().find(|c| c.id == chat_id)
         };
         let Some(chat) = target else { return };
@@ -479,8 +473,8 @@ impl App {
 
         if !state.temporary_mode && ok {
             let _ = storage::save_chats(&state.chats);
-        } else if !state.temporary_mode {
-            // Persist the error too so the user has a record.
+        } 
+        else if !state.temporary_mode {
             let _ = storage::save_chats(&state.chats);
         }
     }
