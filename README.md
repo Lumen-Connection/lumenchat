@@ -1,6 +1,6 @@
 <div align="center">
 
-# Lumen Chat
+# 💬 Lumen Chat
 
 A lightweight, monolithic native chat client that connects to
 [OpenRouter](https://openrouter.ai), giving you access to a wide range of
