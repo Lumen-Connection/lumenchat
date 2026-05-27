@@ -142,6 +142,26 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         ]
     },
     ModelGroup {
+        provider: "Z.ai",
+        models: &[
+            ModelEntry {
+                id: "z-ai/glm-5.1",
+                name: "GLM-5.1",
+                descriptor: "Z.ai's latest reasoning model",
+            },
+            ModelEntry {
+                id: "z-ai/glm-5v-turbo",
+                name: "GLM-5V-Turbo",
+                descriptor: "Z.ai's latest multimodal model",
+            },
+            ModelEntry {
+                id: "z-ai/glm-5-turbo",
+                name: "GLM-5-Turbo",
+                descriptor: "Z.ai's previous reasoning model",
+            },
+        ]
+    },
+    ModelGroup {
         provider: "Moonshot AI",
         models: &[
             ModelEntry {

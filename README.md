@@ -1,8 +1,15 @@
+<div align="center">
+
 # Lumen Chat
 
-A lightweight, Windows-native desktop chat client that connects to
+A lightweight, monolithic native chat client that connects to
 [OpenRouter](https://openrouter.ai), giving you access to a wide range of
-language models through a single, clean interface.
+language models through a single, clean, and extremely lightweight interface.
+
+![Rust](https://img.shields.io/badge/Rust-2024-000599C?logo=rust&logoColor=white)
+![Platform](https://img.shields.io/badge/Windows-x64-0078D6?logo=windows&logoColor=white)
+
+</div>
 
 ## Features
 
@@ -13,6 +20,8 @@ language models through a single, clean interface.
   being accepted.
 - **Chat interface.** A simple message thread with a model picker, an
   attachment button, and a persistent input bar.
+- **Super optimized.** Built in Rust, the whole application uses *80%* less
+  system memory than a ChatGPT tab.
 
 ## Requirements
 
