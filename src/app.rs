@@ -100,7 +100,122 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Fast agentic coding model",
             }
         ]
-    }
+    },
+    ModelGroup {
+        provider: "Alibaba",
+        models: &[
+            ModelEntry {
+                id: "qwen/qwen3.7-max",
+                name: "Qwen3.7-Max",
+                descriptor: "Extreme thinking model",
+            },
+            ModelEntry {
+                id: "qwen/qwen3.6-plus",
+                name: "Qwen3.6-Plus",
+                descriptor: "Adaptive reasoning model",
+            },
+            ModelEntry {
+                id: "qwen/qwen3.6-flash",
+                name: "Qwen3.6-Flash",
+                descriptor: "Cheap, quick model",
+            },
+        ]
+    },
+    ModelGroup {
+        provider: "DeepSeek",
+        models: &[
+            ModelEntry {
+                id: "deepseek/deepseek-v4-pro",
+                name: "DeepSeek V4 Pro",
+                descriptor: "DeepSeek's latest advanced model",
+            },
+            ModelEntry {
+                id: "deepseek/deepseek-v4-flash",
+                name: "DeepSeek V4 Flash",
+                descriptor: "DeepSeek's latest fast model",
+            },
+            ModelEntry {
+                id: "deepseek/deepseek-v3.2",
+                name: "DeepSeek V3.2",
+                descriptor: "DeepSeek's legacy model",
+            },
+        ]
+    },
+    ModelGroup {
+        provider: "Z.ai",
+        models: &[
+            ModelEntry {
+                id: "z-ai/glm-5.1",
+                name: "GLM-5.1",
+                descriptor: "Z.ai's latest reasoning model",
+            },
+            ModelEntry {
+                id: "z-ai/glm-5v-turbo",
+                name: "GLM-5V-Turbo",
+                descriptor: "Z.ai's latest multimodal model",
+            },
+            ModelEntry {
+                id: "z-ai/glm-5-turbo",
+                name: "GLM-5-Turbo",
+                descriptor: "Z.ai's previous reasoning model",
+            },
+        ]
+    },
+    ModelGroup {
+        provider: "Moonshot AI",
+        models: &[
+            ModelEntry {
+                id: "moonshotai/kimi-k2.6",
+                name: "Kimi K2.6",
+                descriptor: "Moonshot's latest reasoning model",
+            },
+            ModelEntry {
+                id: "moonshotai/kimi-k2.5",
+                name: "Kimi K2.5",
+                descriptor: "Moonshot's previous reasoning model",
+            },
+        ]
+    },
+    ModelGroup {
+        provider: "MiniMax",
+        models: &[
+            ModelEntry {
+                id: "minimax/minimax-m2.7",
+                name: "MiniMax-M2.7",
+                descriptor: "MiniMax's latest agentic model"
+            },
+            ModelEntry {
+                id: "minimax/minimax-m2.5",
+                name: "MiniMax-M2.5",
+                descriptor: "MiniMax's previous agentic model",
+            },
+            ModelEntry {
+                id: "minimax/minimax-m2-her",
+                name: "MiniMax-M2-her",
+                descriptor: "MiniMax's conversational model",
+            },
+        ]
+    },
+    ModelGroup {
+        provider: "Xiaomi",
+        models: &[
+            ModelEntry {
+                id: "xiaomi/mimo-v2.5-pro",
+                name: "MiMo-V2.5-Pro",
+                descriptor: "Xiaomi's latest advanced model",
+            },
+            ModelEntry {
+                id: "xiaomi/mimo-v2.5",
+                name: "MiMo-V2.5",
+                descriptor: "Xiaomi's latest balanced model",
+            },
+            ModelEntry {
+                id: "xiaomi/mimo-v2-flash",
+                name: "MiMo-V2-Flash",
+                descriptor: "Xiaomi's previous ultra-low cost model",
+            },
+        ]
+    },
 ];
 
 pub const DEFAULT_MODEL: &str = "google/gemini-3.5-flash";
