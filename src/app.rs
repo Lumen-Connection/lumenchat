@@ -105,7 +105,7 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Alibaba",
         models: &[
             ModelEntry {
-                id: "qwen/qwen3.7-max"
+                id: "qwen/qwen3.7-max",
                 name: "Qwen3.7-Max",
                 descriptor: "Extreme thinking model",
             },
@@ -120,7 +120,7 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Cheap, quick model",
             },
         ]
-    }
+    },
     ModelGroup {
         provider: "DeepSeek",
         models: &[
