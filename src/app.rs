@@ -65,19 +65,19 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Anthropic",
         models: &[
             ModelEntry {
-                id: "anthropic/claude-opus-4.7",
-                name: "Claude Opus 4.7",
+                id: "anthropic/claude-opus-4.8",
+                name: "Claude Opus 4.8",
                 descriptor: "State-of-the-art coding model"
             },
             ModelEntry {
                 id: "anthropic/claude-sonnet-4.6",
                 name: "Claude Sonnet 4.6",
-                descriptor: "Balanced coding model",
+                descriptor: "Balanced, adaptive model",
             },
             ModelEntry {
                 id: "anthropic/claude-haiku-4.5",
                 name: "Claude Haiku 4.5",
-                descriptor: "Fast coding model",
+                descriptor: "Fast, efficient model",
             },
         ],
     },
@@ -180,13 +180,13 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "MiniMax",
         models: &[
             ModelEntry {
-                id: "minimax/minimax-m2.7",
-                name: "MiniMax-M2.7",
+                id: "minimax/minimax-m3",
+                name: "MiniMax-M3",
                 descriptor: "MiniMax's latest agentic model"
             },
             ModelEntry {
-                id: "minimax/minimax-m2.5",
-                name: "MiniMax-M2.5",
+                id: "minimax/minimax-m2.7",
+                name: "MiniMax-M2.7",
                 descriptor: "MiniMax's previous agentic model",
             },
             ModelEntry {
@@ -216,9 +216,29 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
             },
         ]
     },
+    ModelGroup {
+        provider: "FREE",
+        models: &[
+            ModelEntry {
+                id: "moonshotai/kimi-k2.6:free",
+                name: "Kimi K2.6",
+                descriptor: "Free tier of Moonshot's latest LLM",
+            },
+            ModelEntry {
+                id: "nvidia/nemotron-3-super-120b-a12b:free",
+                name: "Nemotron 3 Super",
+                descriptor: "Free tier of NVIDIA's latest LLM",
+            },
+            ModelEntry {
+                id: "google/gemma-4-31b-it:free",
+                name: "Gemma 4 31B",
+                descriptor: "Free tier of Google's open source LLM",
+            },
+        ]
+    },
 ];
 
-pub const DEFAULT_MODEL: &str = "google/gemini-3.5-flash";
+pub const DEFAULT_MODEL: &str = "xiaomi/mimo-v2.5";
 
 pub fn find_model(id: &str) -> Option<&'static ModelEntry> {
     MODEL_GROUPS

@@ -23,6 +23,21 @@ language models through a single, clean, and extremely lightweight interface.
 - **Super optimized.** Built in Rust, the whole application uses *80%* less
   system memory than a ChatGPT tab.
 
+### Supported Models
+
+| Provider | Models |
+| :--- | :--- |
+| **OpenAI** | GPT-5.5, GPT-5.4 Thinking, GPT-5.3 Instant |
+| **Google** | Gemini 3.1 Pro, Gemini 3.5 Flash, Gemini 3.1 Flash-Lite |
+| **Anthropic** | Claude Opus 4.8, Claude Sonnet 4.6, Claude Haiku 4.5 |
+| **xAI** | Grok 4.20 Multi-Agent, Grok 4.3, Grok 4.20 |
+| **Alibaba** | Qwen3.7-Max, Qwen3.6-Plus, Qwen3.6-Flash |
+| **DeepSeek** | DeepSeek V4 Pro, DeepSeek V4 Flash, DeepSeek V3.2 |
+| **Z.ai** | GLM-5.1, GLM-5V-Turbo, GLM-5-Turbo |
+| **MoonshotAI** | Kimi K2.6, Kimi K2.5 |
+| **MiniMax** | MiniMax-M3, MiniMax-M2.7, MiniMax-M2-her |
+| **Xiaomi** | MiMo-V2.5-Pro, MiMo-V2.5, MiMo-V2-Flash |
+
 ## Requirements
 
 - Windows 10 or later
@@ -34,3 +49,4 @@ language models through a single, clean, and extremely lightweight interface.
 
 ```sh
 cargo build --release
+```
