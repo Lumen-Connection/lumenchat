@@ -37,6 +37,7 @@ language models through a single, clean, and extremely lightweight interface.
 | **MoonshotAI** | Kimi K2.6, Kimi K2.5 |
 | **MiniMax** | MiniMax-M3, MiniMax-M2.7, MiniMax-M2-her |
 | **Xiaomi** | MiMo-V2.5-Pro, MiMo-V2.5, MiMo-V2-Flash |
+| **Coding-focused** | GPT-5.5 Pro, GPT-5.3 Codex, KAT-Coder-Pro V2 |
 
 ## Requirements
 
