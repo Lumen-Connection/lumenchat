@@ -67,7 +67,7 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
             ModelEntry {
                 id: "anthropic/claude-opus-4.8",
                 name: "Claude Opus 4.8",
-                descriptor: "State-of-the-art coding model"
+                descriptor: "State-of-the-art reasoning model"
             },
             ModelEntry {
                 id: "anthropic/claude-sonnet-4.6",
@@ -110,8 +110,8 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Extreme thinking model",
             },
             ModelEntry {
-                id: "qwen/qwen3.6-plus",
-                name: "Qwen3.6-Plus",
+                id: "qwen/qwen3.7-plus",
+                name: "Qwen3.7-Plus",
                 descriptor: "Adaptive reasoning model",
             },
             ModelEntry {
@@ -217,6 +217,26 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         ]
     },
     ModelGroup {
+        provider: "Coding",
+        models: &[
+            ModelEntry {
+                id: "openai/gpt-5.5-pro",
+                name: "GPT-5.5 Pro",
+                descriptor: "Extreme cost, ultra intelligent OpenAI model",
+            },
+            ModelEntry {
+                id: "openai/gpt-5.3-codex",
+                name: "GPT-5.3 Codex",
+                descriptor: "OpenAI's coding-oriented model",
+            },
+            ModelEntry {
+                id: "kwaipilot/kat-coder-pro-v2",
+                name: "KAT-Coder-Pro V2",
+                descriptor: "Kwai's latest advanced coding model",
+            },
+        ]
+    },
+    ModelGroup {
         provider: "FREE",
         models: &[
             ModelEntry {
@@ -238,7 +258,7 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
     },
 ];
 
-pub const DEFAULT_MODEL: &str = "xiaomi/mimo-v2.5";
+pub const DEFAULT_MODEL: &str = "xiaomi/mimo-v2-flash";
 
 pub fn find_model(id: &str) -> Option<&'static ModelEntry> {
     MODEL_GROUPS
