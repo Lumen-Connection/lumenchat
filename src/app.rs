@@ -65,6 +65,11 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Anthropic",
         models: &[
             ModelEntry {
+                id: "anthropic/claude-fable-5",
+                name: "Claude Fable 5",
+                descriptor: "Extreme cost Mythos-level reasoning model"
+            },
+            ModelEntry {
                 id: "anthropic/claude-opus-4.8",
                 name: "Claude Opus 4.8",
                 descriptor: "State-of-the-art reasoning model"
@@ -73,11 +78,6 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 id: "anthropic/claude-sonnet-4.6",
                 name: "Claude Sonnet 4.6",
                 descriptor: "Balanced, adaptive model",
-            },
-            ModelEntry {
-                id: "anthropic/claude-haiku-4.5",
-                name: "Claude Haiku 4.5",
-                descriptor: "Fast, efficient model",
             },
         ],
     },
@@ -245,8 +245,8 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Free tier of Moonshot's latest LLM",
             },
             ModelEntry {
-                id: "nvidia/nemotron-3-super-120b-a12b:free",
-                name: "Nemotron 3 Super",
+                id: "nvidia/nemotron-3-ultra-550b-a55b:free",
+                name: "Nemotron 3 Ultra",
                 descriptor: "Free tier of NVIDIA's latest LLM",
             },
             ModelEntry {
@@ -255,6 +255,26 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Free tier of Google's open source LLM",
             },
         ]
+    },
+    ModelGroup {
+        provider: "Legacy",
+        models: &[
+            ModelEntry {
+                id: "openai/gpt-4o-2024-11-20",
+                name: "GPT-4o",
+                descriptor: "OpenAI's legacy chat model",
+            },
+            ModelEntry {
+                id: "google/gemini-2.5-pro",
+                name: "Gemini 2.5 Pro",
+                descriptor: "Google's legacy Pro model",
+            },
+            ModelEntry {
+                id: "meta-llama/llama-4-maverick",
+                name: "Llama 4 Maverick",
+                descriptor: "Meta's previous high-compute LLM",
+            },
+        ],
     },
 ];
 
