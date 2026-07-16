@@ -396,12 +396,21 @@ impl App {
     pub fn new() -> anyhow::Result<Self> {
         let rt = Arc::new(Runtime::new()?);
 
-        let screen = match SecureStore::load_key()? {
-            Some(key) => Screen::Main(Self::build_main_state(key)?),
-            None => Screen::Onboarding(OnboardingState {
+        let screen = match SecureStore::load_key() {
+            Ok(Some(key)) => Screen::Main(Self::build_main_state(key)?),
+            Ok(None) => Screen::Onboarding(OnboardingState {
                 key_input: String::new(),
                 show_key: false,
                 status: OnboardingStatus::Idle,
+                rx: None,
+            }),
+            Err(e) => Screen::Onboarding(OnboardingState {
+                key_input: String::new(),
+                show_key: false,
+                status: OnboardingStatus::Error(format!(
+                    "Couldn't access {}. Start or unlock it, then try again: {e:#}",
+                    SecureStore::display_name()
+                )),
                 rx: None,
             }),
         };

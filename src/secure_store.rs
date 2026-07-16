@@ -7,8 +7,20 @@ const USER: &str = "openrouter_api_key";
 pub struct SecureStore;
 
 impl SecureStore {
+    pub const fn display_name() -> &'static str {
+        #[cfg(windows)]
+        {
+            "Windows Credential Manager"
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            "your Linux Secret Service (such as GNOME Keyring or KWallet)"
+        }
+    }
+
     fn entry() -> Result<Entry> {
-        Entry::new(SERVICE, USER).context("Failed to open WCM entry")
+        Entry::new(SERVICE, USER).context("Failed to open system credential-store entry")
     }
 
     pub fn load_key() -> Result<Option<String>> {
@@ -23,7 +35,7 @@ impl SecureStore {
                 }
             }
             Err(keyring::Error::NoEntry) => Ok(None),
-            Err(e) => Err(e).context("Failed to read API from store"),
+            Err(e) => Err(e).context("Failed to read API key from system credential store"),
         }
     }
 
@@ -34,7 +46,7 @@ impl SecureStore {
         }
         Self::entry()?
             .set_password(trimmed)
-            .context("Failed to write to store")
+            .context("Failed to write API key to system credential store")
     }
 
     pub fn delete_key() -> anyhow::Result<()> {

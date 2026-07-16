@@ -1,4 +1,6 @@
 use crate::app::{find_model, App, Message, OnboardingStatus, Role, Screen, MODEL_GROUPS, DEFAULT_MODEL};
+use crate::secure_store::SecureStore;
+use crate::storage;
 use eframe::egui;
 use egui_commonmark::{CommonMarkCache, CommonMarkViewer};
 use std::cell::RefCell;
@@ -109,7 +111,10 @@ fn render_onboarding(app: &mut App, ctx: &egui::Context) {
             ui.add_space(20.0);
             ui.label(
                 egui::RichText::new(
-                    "Your key is stored in Windows Credential Manager and never written to disk in plain text.",
+                    format!(
+                        "Your key is stored in {} and never written to disk in plain text.",
+                        SecureStore::display_name()
+                    ),
                 )
                 .small()
                 .color(egui::Color32::GRAY),
@@ -492,9 +497,11 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
 
                 ui.add_space(12.0);
                 ui.label(
-                    egui::RichText::new(
-                        "Your API key is stored in Windows Credential Manager.\nChat history is stored locally next to the executable.",
-                    )
+                    egui::RichText::new(format!(
+                        "Your API key is stored in {}.\n{}",
+                        SecureStore::display_name(),
+                        storage::chat_history_location_description()
+                    ))
                     .small()
                     .color(egui::Color32::from_gray(150)),
                 );
@@ -521,7 +528,10 @@ fn render_main(app: &mut App, ctx: &egui::Context) {
             .default_width(360.0)
             .show(ctx, |ui| {
                 ui.add_space(4.0);
-                ui.label("This will remove the cached API key from Windows Credential Manager and return you to the key entry screen.");
+                ui.label(format!(
+                    "This will remove the cached API key from {} and return you to the key entry screen.",
+                    SecureStore::display_name()
+                ));
                 ui.add_space(6.0);
                 ui.label(
                     egui::RichText::new("Your saved chats will not be deleted.")

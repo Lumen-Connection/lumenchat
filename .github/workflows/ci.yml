@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --all-targets
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install native desktop build dependencies
+        run: >-
+          sudo apt-get update && sudo apt-get install -y
+          build-essential pkg-config libdbus-1-dev libgl1-mesa-dev libwayland-dev
+          libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxkbcommon-dev
+          libxrandr-dev
+      - run: cargo build --release
+      - run: cargo test --all-targets

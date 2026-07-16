@@ -7,14 +7,15 @@ A lightweight, monolithic native chat client that connects to
 language models through a single, clean, and extremely lightweight interface.
 
 ![Rust](https://img.shields.io/badge/Rust-2024-000599C?logo=rust&logoColor=white)
-![Platform](https://img.shields.io/badge/Windows-x64-0078D6?logo=windows&logoColor=white)
+![Platform](https://img.shields.io/badge/Windows%20%7C%20Linux-x64-0078D6?logo=rust&logoColor=white)
 
 </div>
 
 ## Features
 
-- **Secure API key storage.** API keys are stored in the Windows
-  Credential Manager (via DPAPI), never in a plain text file or environment
+- **Secure API key storage.** API keys are stored in the native system
+  credential service—Windows Credential Manager on Windows or Secret Service
+  (GNOME Keyring/KWallet) on Linux—never in a plain text file or environment
   variables.
 - **Key validation.** The key is verified against the OpenRouter API before
   being accepted.
@@ -41,9 +42,12 @@ language models through a single, clean, and extremely lightweight interface.
 
 ## Requirements
 
-- Windows 10 or later
+- Windows 10 or later, or a mainstream x86_64 Linux desktop distribution
 - A valid [OpenRouter API key](https://openrouter.ai/keys)
-- [Visual C++ for Visual Studio 2015-2022 x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+- Windows: [Visual C++ for Visual Studio 2015-2022 x64](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+- Linux: an X11 or Wayland desktop session with D-Bus Secret Service available
+  and unlocked (for example, GNOME Keyring or KWallet). WSL and headless Linux
+  are not supported.
 - [Rust toolchain](https://rustup.rs) (only for building from source)
 
 ## Building
@@ -51,3 +55,13 @@ language models through a single, clean, and extremely lightweight interface.
 ```sh
 cargo build --release
 ```
+
+On Debian/Ubuntu, install the native development libraries before building:
+
+```sh
+sudo apt install build-essential pkg-config libdbus-1-dev libgl1-mesa-dev libwayland-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev
+```
+
+Linux chat history is written to the user data directory (normally
+`~/.local/share/lumenchat/`). Windows continues to store `chats.json` next to
+the executable.
