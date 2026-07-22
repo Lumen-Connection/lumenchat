@@ -42,6 +42,7 @@ fn linux_data_dir(xdg_data_home: Option<&Path>, home_dir: &Path) -> PathBuf {
         .join(LINUX_DATA_DIR)
 }
 
+#[cfg(not(target_os = "linux"))]
 fn chats_path_next_to(executable: &Path) -> PathBuf {
     executable
         .parent()
@@ -97,6 +98,7 @@ fn save_chats_at(path: &Path, chats: &[Chat]) -> Result<()> {
 mod tests {
     use super::*;
 
+    #[cfg(not(target_os = "linux"))]
     #[test]
     fn executable_adjacent_path_uses_the_executables_parent_directory() {
         assert_eq!(

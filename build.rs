@@ -1,3 +1,4 @@
+#[cfg(windows)]
 fn main() {
     if std::env::var_os("CARGO_CFG_WINDOWS").is_some() {
         let mut res = winresource::WindowsResource::new();
@@ -9,3 +10,6 @@ fn main() {
         res.compile().expect("failed to compile Windows resources");
     }
 }
+
+#[cfg(not(windows))]
+fn main() {}
