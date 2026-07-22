@@ -28,17 +28,17 @@ language models through a single, clean, and extremely lightweight interface.
 
 | Provider | Models |
 | :--- | :--- |
-| **OpenAI** | GPT-5.5, GPT-5.4 Thinking, GPT-5.3 Instant |
-| **Google** | Gemini 3.1 Pro, Gemini 3.5 Flash, Gemini 3.1 Flash-Lite |
-| **Anthropic** | Claude Fable 5, Claude Opus 4.8, Claude Sonnet 4.6 |
-| **xAI** | Grok 4.20 Multi-Agent, Grok 4.3, Grok 4.20 |
+| **OpenAI** | GPT-5.6 Sol, GPT-5.6 Terra, GPT-5.6 Luna |
+| **Google** | Gemini 3.1 Pro, Gemini 3.6 Flash, Gemini 3.5 Flash-Lite |
+| **Anthropic** | Claude Fable 5, Claude Opus 4.8, Claude Sonnet 5 |
+| **xAI** | Grok 4.5, Grok 4.3, Grok Build 0.1 |
 | **Alibaba** | Qwen3.7-Max, Qwen3.7-Plus, Qwen3.6-Flash |
 | **DeepSeek** | DeepSeek V4 Pro, DeepSeek V4 Flash, DeepSeek V3.2 |
-| **Z.ai** | GLM-5.1, GLM-5V-Turbo, GLM-5-Turbo |
-| **MoonshotAI** | Kimi K2.6, Kimi K2.5 |
+| **Z.ai** | GLM-5.2, GLM-5.1, GLM-5V-Turbo |
+| **MoonshotAI** | Kimi K3, Kimi K2.7 Code, Kimi K2.6 |
 | **MiniMax** | MiniMax-M3, MiniMax-M2.7, MiniMax-M2-her |
 | **Xiaomi** | MiMo-V2.5-Pro, MiMo-V2.5, MiMo-V2-Flash |
-| **Coding-focused** | GPT-5.5 Pro, GPT-5.3 Codex, KAT-Coder-Pro V2 |
+| **Coding-focused** | GPT-5.6 Sol Pro, GPT-5.3 Codex, KAT-Coder-Pro V2.5 |
 
 ## Requirements
 
@@ -61,7 +61,3 @@ On Debian/Ubuntu, install the native development libraries before building:
 ```sh
 sudo apt install build-essential pkg-config libdbus-1-dev libgl1-mesa-dev libwayland-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev
 ```
-
-Linux chat history is written to the user data directory (normally
-`~/.local/share/lumenchat/`). Windows continues to store `chats.json` next to
-the executable.
