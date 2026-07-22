@@ -25,19 +25,19 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "OpenAI",
         models: &[
             ModelEntry {
-                id: "openai/gpt-5.5",
-                name: "GPT-5.5",
-                descriptor: "Heavy reasoning",
+                id: "openai/gpt-5.6-sol",
+                name: "GPT-5.6 Sol",
+                descriptor: "SOTA reasoning",
             },
             ModelEntry {
-                id: "openai/gpt-5.4",
-                name: "GPT-5.4 Thinking",
-                descriptor: "Better thinking",
+                id: "openai/gpt-5.6-terra",
+                name: "GPT-5.6 Terra",
+                descriptor: "Opus-level thinking",
             },
             ModelEntry {
-                id: "openai/gpt-5.3-chat",
-                name: "GPT-5.3 Instant",
-                descriptor: "Daily chat model",
+                id: "openai/gpt-5.6-luna",
+                name: "GPT-5.6 Luna",
+                descriptor: "Quick, smart responses",
             }
         ],
     },
@@ -50,13 +50,13 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Deep thinking",
             },
             ModelEntry {
-                id: "google/gemini-3.5-flash",
-                name: "Gemini 3.5 Flash",
+                id: "google/gemini-3.6-flash",
+                name: "Gemini 3.6 Flash",
                 descriptor: "Balanced model",
             },
             ModelEntry {
-                id: "google/gemini-3.1-flash-lite",
-                name: "Gemini 3.1 Flash-Lite",
+                id: "google/gemini-3.5-flash-lite",
+                name: "Gemini 3.5 Flash-Lite",
                 descriptor: "Cheap, quick thinker",
             }
         ],
@@ -75,8 +75,8 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "State-of-the-art reasoning model"
             },
             ModelEntry {
-                id: "anthropic/claude-sonnet-4.6",
-                name: "Claude Sonnet 4.6",
+                id: "anthropic/claude-sonnet-5",
+                name: "Claude Sonnet 5",
                 descriptor: "Balanced, adaptive model",
             },
         ],
@@ -85,9 +85,9 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "xAI",
         models: &[
             ModelEntry {
-                id: "x-ai/grok-4.20-multi-agent",
-                name: "Grok 4.20 Multi-Agent",
-                descriptor: "Uncensored multiagentic reasoning",
+                id: "x-ai/grok-4.5",
+                name: "Grok 4.5",
+                descriptor: "Uncensored superpowered reasoning",
             },
             ModelEntry {
                 id: "x-ai/grok-4.3",
@@ -145,19 +145,19 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Z.ai",
         models: &[
             ModelEntry {
+                id: "z-ai/glm-5.2",
+                name: "GLM-5.2",
+                descriptor: "Z.ai's latest reasoning model",
+            },
+            ModelEntry {
                 id: "z-ai/glm-5.1",
                 name: "GLM-5.1",
-                descriptor: "Z.ai's latest reasoning model",
+                descriptor: "Z.ai's previous reasoning model",
             },
             ModelEntry {
                 id: "z-ai/glm-5v-turbo",
                 name: "GLM-5V-Turbo",
                 descriptor: "Z.ai's latest multimodal model",
-            },
-            ModelEntry {
-                id: "z-ai/glm-5-turbo",
-                name: "GLM-5-Turbo",
-                descriptor: "Z.ai's previous reasoning model",
             },
         ]
     },
@@ -165,13 +165,18 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Moonshot AI",
         models: &[
             ModelEntry {
-                id: "moonshotai/kimi-k2.6",
-                name: "Kimi K2.6",
-                descriptor: "Moonshot's latest reasoning model",
+                id: "moonshotai/kimi-k3",
+                name: "Kimi K3",
+                descriptor: "Moonshot's ultra reasoning model",
             },
             ModelEntry {
-                id: "moonshotai/kimi-k2.5",
-                name: "Kimi K2.5",
+                id: "moonshotai/kimi-k2.7-code",
+                name: "Kimi K2.7 Code",
+                descriptor: "Moonshot's latest coding model",
+            },
+            ModelEntry {
+                id: "moonshotai/kimi-k2.6",
+                name: "Kimi K2.6",
                 descriptor: "Moonshot's previous reasoning model",
             },
         ]
@@ -220,39 +225,19 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
         provider: "Coding",
         models: &[
             ModelEntry {
-                id: "openai/gpt-5.5-pro",
-                name: "GPT-5.5 Pro",
+                id: "openai/gpt-5.6-sol-pro",
+                name: "GPT-5.6 Sol Pro",
                 descriptor: "Extreme cost, ultra intelligent OpenAI model",
             },
             ModelEntry {
                 id: "openai/gpt-5.3-codex",
                 name: "GPT-5.3 Codex",
-                descriptor: "OpenAI's coding-oriented model",
+                descriptor: "OpenAI's legacy coding-oriented model",
             },
             ModelEntry {
-                id: "kwaipilot/kat-coder-pro-v2",
-                name: "KAT-Coder-Pro V2",
+                id: "kwaipilot/kat-coder-pro-v2.5",
+                name: "KAT-Coder-Pro V2.5",
                 descriptor: "Kwai's latest advanced coding model",
-            },
-        ]
-    },
-    ModelGroup {
-        provider: "FREE",
-        models: &[
-            ModelEntry {
-                id: "moonshotai/kimi-k2.6:free",
-                name: "Kimi K2.6",
-                descriptor: "Free tier of Moonshot's latest LLM",
-            },
-            ModelEntry {
-                id: "nvidia/nemotron-3-ultra-550b-a55b:free",
-                name: "Nemotron 3 Ultra",
-                descriptor: "Free tier of NVIDIA's latest LLM",
-            },
-            ModelEntry {
-                id: "google/gemma-4-31b-it:free",
-                name: "Gemma 4 31B",
-                descriptor: "Free tier of Google's open source LLM",
             },
         ]
     },
@@ -270,9 +255,9 @@ pub const MODEL_GROUPS: &[ModelGroup] = &[
                 descriptor: "Google's legacy Pro model",
             },
             ModelEntry {
-                id: "meta-llama/llama-4-maverick",
-                name: "Llama 4 Maverick",
-                descriptor: "Meta's previous high-compute LLM",
+                id: "x-ai/grok-4.20-multi-agent",
+                name: "Grok 4.20 Multi-Agent",
+                descriptor: "SpaceXAI's older multi-agent orchestrator",
             },
         ],
     },
